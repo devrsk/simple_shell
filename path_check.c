@@ -40,7 +40,7 @@ int _values_path(char **arg, char **env)
 		free(path_absol);
 		token = strtok(NULL, ":");
 	}
-	token = '\0';
+	token = '0';
 	free(path_rela);
 	return (-1);
 }

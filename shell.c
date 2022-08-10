@@ -1,51 +1,74 @@
 #include "shell.h"
+
 /**
- * main - Main arguments functions
- * @ac: Count of argumnents
- * @av: Arguments
- * @env: Environment
- * Return: _exit = 0.
- */
-int main(int ac, char **av, char **env)
+* INThandler - handles signals and write the prompt
+*@sig: signal to handle
+*Return: Nothing (void)
+*/
+
+void INThandler(int sig)
 {
-	int pathValue = 0, status = 0, is_path = 0;
-	char *line = NULL, /**ptr to inpt*/ **commands = NULL; /**tokenized commands*/
-	(void)ac;
-	while (1)/* loop until exit */
+	(void)sig;
+	write(STDOUT_FILENO, "\n$ ", 3);
+}
+
+/**
+* print_dollar - Function to print the dollar sign
+*Return: Nothing(void)
+*/
+
+void print_dollar(void)
+{
+	if (isatty(STDIN_FILENO))
+		write(STDOUT_FILENO, "$ ", 2);
+}
+
+/**
+* main - principal function to run the shell
+*@argc: argument count
+*@argv: argument vector
+*@env: enviroment variables
+*Return: 0 on exit, 1 if any failures happen
+*/
+
+int main(int argc, char **argv, char **env)
+{
+	char *buffer, **commands;
+	size_t length;
+	ssize_t characters;
+	pid_t pid;
+	int status, count;
+	(void)argc;
+	buffer = NULL, length = 0, count = 0;
+	/*write promt only if it's from standard input*/
+	print_dollar();
+	/*infinite loop*/
+	while ((characters = getline(&buffer, &length, stdin)))
 	{
-		errno = 0;
-		line = _getline_command();/** reads user input*/
-		if (line == NULL && errno == 0)
-			return (0);
-		if (line)
-		{
-			pathValue++;
-			commands = tokenize(line);/** tokenizes or parse user input*/
-			if (!commands)
-				free(line);
-			if (!_strcmp(commands[0], "env"))/**checks if user wrote env"*/
-				_getenv(env);
-			else
-			{
-				is_path = _values_path(&commands[0], env);/** tokenizes PATH*/
-				status = _fork_fun(commands, av, env, line, pathValue, is_path);
-					if (status == 200)
-					{
-						free(line);
-						return (0);
-					}
-				if (is_path == 0)
-					free(commands[0]);
-			}
-			free(commands); /*free up memory*/
-		}
+		/*signal kill for contro+c */
+		signal(SIGINT, INThandler);
+		/*check the end of file*/
+		if (characters == EOF)
+			end_file(buffer);
+		count++;
+		/*collect commands from the prompt and store in double pointer*/
+		commands = array_strtok(buffer);
+		/*create new process*/
+		pid = fork();
+		if (pid == -1)
+			fork_fail();
+		if (pid == 0)
+			execute(commands, buffer, env, argv, count);
+		/*free everithing*/
 		else
 		{
-			if (isatty(STDIN_FILENO))
-				write(STDOUT_FILENO, "\n", 1);/** Writes to standard output*/
-			exit(status);
+			wait(&status);
+			send_to_free(buffer, commands);
 		}
-		free(line);
+		length = 0, buffer = NULL; /*reset for getline*/
+		print_dollar();
 	}
-	return (status);
+	if (characters == -1)
+		return (EXIT_FAILURE);
+		return (EXIT_SUCCESS);
 }

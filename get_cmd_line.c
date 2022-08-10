@@ -1,22 +1,62 @@
 #include "shell.h"
+
 /**
- * _getline_command -  GEts inputs
- * Return: The input.
- */
+ * length_of_command - find the number of commands in a string
+ * @string: string that have the commands
+ * Return: number of commands
+*/
 
-char *_getline_command(void)
+unsigned int length_of_command(char *string)
 {
-	char *lineptr = NULL;
-	size_t charter_user = 0;
+	unsigned int i = 0, command = 0, flag = 0;
 
-	if (isatty(STDIN_FILENO))
-		write(STDOUT_FILENO, "$ ", 2);
-
-	if (getline(&lineptr, &charter_user, stdin) == -1)
+	while (string[i] != '\0')
 	{
-		free(lineptr);
-		return (NULL);
+		if (string[i] != ' ')
+			flag = 1;
+		if ((flag && string[i + 1] == ' ')
+			|| (flag && string[i + 1] == '\0'))
+		{
+			++command;
+			flag = 0;
+		}
+		i++;
 	}
+	return (command);
+}
 
-	return (lineptr);
+/**
+ * array_strtok - create a double pointer array that point to each string
+ * from the command line
+ * @str: command from the terminal
+ * Return: array of pointers that are commands to interpret or execute
+*/
+char **array_strtok(char *str)
+{
+	char *token, **holder;
+	unsigned int length;
+	int i = 0;
+
+	str[_strlen(str) - 1] = '\0'; /**replace the new line by null*/
+	length = length_of_command(str);
+	if (length == 0)
+		return (NULL);
+	holder = malloc((sizeof(char *) * (length + 1)));
+	if (holder == NULL)
+		return (NULL);
+	token = strtok(str, " ");
+	while (token != NULL)
+	{
+		holder[i] = malloc(_strlen(token) + 1);
+		if (holder[i] == NULL)
+		{
+			free_all_dp(holder);
+			return (NULL);
+		}
+		_strncpy(holder[i], token, _strlen(token) + 1);
+		token = strtok(NULL, " ");
+		i++;
+	}
+	holder[i] = NULL;
+	return (holder);
 }
