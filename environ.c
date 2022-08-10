@@ -11,7 +11,7 @@ char *get_enviroment(char **env, char *comd)
 	int i, c, len = 0;
 	char **new_env = NULL;
 	char array_path[5];
-	char *path_char, *resv_concat;
+	char *path_char= NULL, *resv_concat;
 
 	for (i = 0; env[i] != NULL; i++)
 	{

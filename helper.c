@@ -1,4 +1,4 @@
-#include "simpleshell.h"
+#include "shell.h"
 
 /**
  * print_exit - function that calls the text file of exit
