@@ -69,7 +69,6 @@ void _exit_func(char **);
 /*methods function C*/
 void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
 int _strcmp(char *s1, char *s2);
-int _strncmp(char *s1, char *s2, int n);
 char *_strcat(char *dest, char *src);
 char *_strdup(char *str);
 char *_strtok(char *line, char *delim);
@@ -90,10 +89,5 @@ char print_exit(input_v *vars);
 char print_pwd(input_v *vars);
 char print_cd(input_v *vars);
 char print_help(input_v *vars);
-char *find_path(char **);
-char *_strstr(char *haystack, char *needle);
-void print_env(char **);
-char *_which(char *p_rec, char *first_arg);
-char *string_nconcat(char *s1, char *s2, unsigned int n);
 
 #endif
