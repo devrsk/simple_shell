@@ -14,13 +14,13 @@ void handle_ctrld(input_v *vars, int len)
 	}
 }
 /**
- * main - function that evaluates whether the command exists
+ * shell - function that evaluates whether the command exists
  * @ac: count
  * @av: array
  * @env: enviroment
  * Return: message
  */
-int main(int ac, char **av, char **env)
+int shell(int ac, char **av, char **env)
 {
 	input_v var = {0, NULL, NULL, NULL, 0};
 	size_t cant_buff = 0;
