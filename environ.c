@@ -1,5 +1,4 @@
 #include "shell.h"
-
 /**
  * get_enviroment - function that gets PATH from environment
  * @env: enviroment
