@@ -1,96 +1,83 @@
 #include "shell.h"
-
 /**
- * path_cmd -  Search In $PATH For Excutable Command
- * @cmd: Parsed Input
- * Return: 1  Failure  0  Success.
- */
-int path_cmd(char **cmd)
-{
-	char *path, *value, *cmd_path;
-	struct stat buf;
-
-	path = _getenv("PATH");
-	value = _strtok(path, ":");
-	while (value != NULL)
-	{
-		cmd_path = build(*cmd, value);
-		if (stat(cmd_path, &buf) == 0)
-		{
-			*cmd = _strdup(cmd_path);
-			free(cmd_path);
-			free(path);
-			return (0);
-		}
-		free(cmd_path);
-		value = _strtok(NULL, ":");
-	}
-	free(path);
-
-	return (1);
-}
-/**
- * build - Build Command
- * @token: Excutable Command
- * @value: Dirctory Conatining Command
+ * *find_path - Find the PATH
+ * @environ: Environ variable.
  *
- * Return: Parsed Full Path Of Command Or NULL Case Failed
+ * Return: string with path or NULL in failure.
  */
-char *build(char *token, char *value)
-{
-	char *cmd;
-	size_t len;
 
-	len = _strlen(value) + _strlen(token) + 2;
-	cmd = malloc(sizeof(char) * len);
-	if (cmd == NULL)
-	{
+char *find_path(char **environ)
+{
+	char **env_ptr;
+	char *aux;
+	char *path;
+	char *token;
+
+	if (environ == NULL)
 		return (NULL);
-	}
 
-	memset(cmd, 0, len);
-
-	cmd = _strcat(cmd, value);
-	cmd = _strcat(cmd, "/");
-	cmd = _strcat(cmd, token);
-
-	return (cmd);
-}
-/**
- * _getenv - Gets The Value Of Enviroment Variable By Name
- * @name: Environment Variable Name
- * Return: The Value of the Environment Variable Else NULL.
- */
-char *_getenv(char *name)
-{
-	size_t nl, vl;
-	char *value;
-	int i, x, j;
-
-	nl = _strlen(name);
-	for (i = 0 ; environ[i]; i++)
+	for (env_ptr = environ; env_ptr != 0; env_ptr++)
 	{
-		if (_strncmp(name, environ[i], nl) == 0)
+		aux =  _strstr(*env_ptr, "PATH");
+		if (aux != NULL)
 		{
-			vl = _strlen(environ[i]) - nl;
-			value = malloc(sizeof(char) * vl);
-			if (!value)
+			path = _strdup(aux);
+			token = strtok(path, "=");
+			while (token != NULL)
 			{
-				free(value);
-				perror("unable to alloc");
-				return (NULL);
+				token = strtok(NULL, "=");
+				return (token);
 			}
-
-			j = 0;
-			for (x = nl + 1; environ[i][x]; x++, j++)
-			{
-				value[j] = environ[i][x];
-			}
-			value[j] = '\0';
-
-			return (value);
 		}
 	}
+	return (NULL);
+}
 
+/**
+ * print_env - Print environment variables.
+ *
+ * @environ: Environ variable.
+ */
+
+void print_env(char **environ)
+{
+	char **env_ptr;
+	unsigned int size;
+
+	env_ptr = environ;
+	while (*env_ptr)
+	{
+		size = _strlen(*env_ptr);
+		write(STDOUT_FILENO, *env_ptr, size);
+		write(STDOUT_FILENO, "\n", 1);
+		env_ptr++;
+	}
+}
+
+/**
+ * _which - Find the directory of the command.
+ * @p_rec: Path received
+ * @first_arg: Command
+ *
+ * Return: string with find path or NULL in failure.
+ */
+
+char *_which(char *p_rec, char *first_arg)
+{
+	char *path, *arg, *path_tok, *command;
+	unsigned int size;
+
+	size = _strlen(first_arg);
+	path = _strdup(p_rec);
+	arg = _strdup(string_nconcat("/", first_arg, size));
+	size = _strlen(arg);
+	path_tok = strtok(path, ":");
+	while (path_tok != NULL)
+	{
+		command = string_nconcat(path_tok, arg, size);
+		if (access(command, F_OK) == 0)
+			return (command);
+		path_tok = strtok(NULL, ":");
+	}
 	return (NULL);
 }

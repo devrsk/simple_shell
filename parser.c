@@ -1,32 +1,30 @@
 #include "shell.h"
-
 /**
- * parse_cmd - Parse Line Of Input
- * @input:User Input To Parse
- * Return: Array Of Char (Parsed):Simple Shell
+ * _parser_cmd - Parses a simple command from prompt.
+ * @cmd_line: command line to be parsed from prompt.
+ * @myself: my own name as shell.
+ *
+ * Return: NULL or pointer to command node
  */
-char **parse_cmd(char *input)
+command_t *_parser_cmd(char *myself, char *cmd_line)
 {
-	char **tokens;
-	char *token;
-	int i, buffsize = BUFSIZE;
+	size_t i = 0;
+	char *cmd_str = NULL;
+	const char *arg_sep = " \n";
+	command_t *cmd_node = NULL;
 
-	if (input == NULL)
-		return (NULL);
-	tokens = malloc(sizeof(char *) * buffsize);
-	if (!tokens)
+	cmd_str = strtok(cmd_line, arg_sep); /* get the first token */
+	if (cmd_str)
 	{
-		perror("hsh");
-		return (NULL);
+		cmd_node = new_cmd_node(myself);
+		add_tok_to_cmd(myself, cmd_node, i, cmd_str);
+		while (cmd_str != NULL)
+		{ /* walk through other tokens */
+			cmd_str == NULL ? i : i++;
+			cmd_str = strtok(NULL, arg_sep);
+			if (cmd_str)
+				add_tok_to_cmd(myself, cmd_node, i, cmd_str);
+		}
 	}
-
-	token = _strtok(input, "\n ");
-	for (i = 0; token; i++)
-	{
-		tokens[i] = token;
-		token = _strtok(NULL, "\n ");
-	}
-	tokens[i] = NULL;
-
-	return (tokens);
+	return (cmd_node);
 }

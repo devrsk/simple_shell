@@ -1,90 +1,29 @@
 #include "shell.h"
-
 /**
- * main - Simple Shell (Hsh)
- * @argc: Argument Count
- * @argv:Argument Value
- * Return: Exit Value By Status
+ * main - Simple Shell
+ * @ac: Argument counter.
+ * @av: Argument values.
+ * @env: Environment variables.
+ *
+ * Return: 0 or -1 in failure.
  */
-
-int main(__attribute__((unused)) int argc, char **argv)
+int main(int ac, char **av, char **env)
 {
-	char *input, **cmd;
-	int counter = 0, statue = 1, st = 0;
+	command_t **cmd_list = NULL;/* Command List */
+	char *path = NULL;
 
-	if (argv[1] != NULL)
-		read_file(argv[1], argv);
-	signal(SIGINT, signal_to_handel);
-	while (statue)
+	path = find_path(env);
+	ac++;
+	while (1)
 	{
-		counter++;
-		if (isatty(STDIN_FILENO))
-			prompt();
-		input = _getline();
-		if (input[0] == '\0')
+		cmd_list = _prompt(av[0], av[1]); /* get commands from cmd_line */
+		if (cmd_list)
 		{
-			continue;
-		}
-		history(input);
-		cmd = parse_cmd(input);
-		if (_strcmp(cmd[0], "exit") == 0)
-		{
-			exit_bul(cmd, input, argv, counter);
-		}
-		else if (check_builtin(cmd) == 0)
-		{
-			st = handle_builtin(cmd, st);
-			free_all(cmd, input);
-			continue;
+			if (_fork(av[0], *cmd_list, path, env))
+				error_handler(av[0], 102);
 		}
 		else
-		{
-			st = check_cmd(cmd, input, counter, argv);
-
-		}
-		free_all(cmd, input);
+			error_handler(av[0], 103);
 	}
-	return (statue);
-}
-/**
- * check_builtin - check builtin
- *
- * @cmd:command to check
- * Return: 0 Succes -1 Fail
- */
-int check_builtin(char **cmd)
-{
-	bul_t fun[] = {
-		{"cd", NULL},
-		{"help", NULL},
-		{"echo", NULL},
-		{"history", NULL},
-		{NULL, NULL}
-	};
-	int i = 0;
-		if (*cmd == NULL)
-	{
-		return (-1);
-	}
-
-	while ((fun + i)->command)
-	{
-		if (_strcmp(cmd[0], (fun + i)->command) == 0)
-			return (0);
-		i++;
-	}
-	return (-1);
-}
-/**
- * creat_envi - Creat Array of Enviroment Variable
- * @envi: Array of Enviroment Variable
- * Return: Void
- */
-void creat_envi(char **envi)
-{
-	int i;
-
-	for (i = 0; environ[i]; i++)
-		envi[i] = _strdup(environ[i]);
-	envi[i] = NULL;
+	return (0);
 }
