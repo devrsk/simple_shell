@@ -1,114 +1,105 @@
 #include "shell.h"
 
 /**
- * _strdup - returns a pointer to a newly allocated space in memory, which
- * contains a copy of the string given as a parameter
- * @str: pointer to a string
- * Return: pointer to a string
- */
-char *_strdup(char *str)
+* _strcmp - compares two strings
+* @s1: compared to s2;
+* @s2: compared to s1;
+*
+* Return: returns difference between strings
+*/
+int _strcmp(char *s1, char *s2)
 {
-	int i, l;
-	char *new;
+	int i = 0, output;
 
-	if (!str)
-	{
-		return (NULL);
-	}
-	for (l = 0; str[l] != '\0';)
-	{
-		l++;
-	}
-	new = malloc(sizeof(char) * l + 1);
-	if (!new)
-	{
-		return (NULL);
-	}
-	for (i = 0; i < l; i++)
-	{
-		new[i] = str[i];
-	}
-	new[l] = str[l];
-	return (new);
+	while (*(s1 + i) == *(s2 + i) && *(s1 + i) != '\0')
+		i++;
+
+	output = (*(s1 + i) - *(s2 + i));
+
+	return (output);
 }
 
 /**
- * concat_all - concats 3 strings in a newly allocated memory
- * @name: first string
- * @sep: second string
- * @value: Third string
- * Return: pointer to the new string
- */
-char *concat_all(char *name, char *sep, char *value)
-{
-	char *result;
-	int l1, l2, l3, i, k;
-
-	l1 = _strlen(name);
-	l2 = _strlen(sep);
-	l3 = _strlen(value);
-
-	result = malloc(l1 + l2 + l3 + 1);
-	if (!result)
-		return (NULL);
-
-	for (i = 0; name[i]; i++)
-		result[i] = name[i];
-	k = i;
-
-	for (i = 0; sep[i]; i++)
-		result[k + i] = sep[i];
-	k = k + i;
-
-	for (i = 0; value[i]; i++)
-		result[k + i] = value[i];
-	k = k + i;
-
-	result[k] = '\0';
-
-	return (result);
-}
-
-/**
- * _strlen - it gives the length of a string
- * @s: pointer to the string
- * Return: the length of string
- */
+* _strlen - returns the length of a string
+* @s: string passed
+*
+* Return: returns length of string passed
+*/
 int _strlen(char *s)
 {
-	int i = 0;
+	int count = 0;
 
-	while (*(s + i) != '\0')
+	while (*s != '\0')
 	{
-		i++;
+		count++;
+		s++;
 	}
-	return (i);
+	return (count);
 }
 
 /**
- * _putchar - writes the character c to stdout
- * @c: The character to print
- *
- * Return: On success 1.
- * On error, -1 is returned, and errno is set appropriately.
- */
-int _putchar(char c)
+* _strncmp - compares two strings up to n bytes
+* @s1: compared to s2
+* @s2: compared to s1
+* @n: number of bytes
+*
+* Return: difference between s1 and s2
+*/
+int _strncmp(char *s1, char *s2, int n)
 {
-	return (write(1, &c, 1));
+	int i;
+
+	for (i = 0; s1[i] && s2[i] && i < n; i++)
+	{
+		if (s1[i] != s2[i])
+			return (s1[i] - s2[i]);
+	}
+	return (0);
 }
 
 /**
- * _puts - prints a string
- * @str: pointer to string
- */
-
-void _puts(char *str)
+* _strdup - dupicates string
+* @s: to be duplicated
+*
+* Return: pointer to duplicate string
+*/
+char *_strdup(char *s)
 {
-	int i = 0;
+	char *ptr;
+	int i, len;
 
-	while (str[i])
+	if (s == NULL)
+		return (NULL);
+
+	len = _strlen(s);
+
+	ptr = malloc(sizeof(char) * (len + 1));
+	if (!ptr)
+		return (NULL);
+	for (i = 0; *s != '\0'; s++, i++)
+		ptr[i] = s[0];
+
+	ptr[i++] = '\0';
+	return (ptr);
+}
+
+/**
+* _strchr - locates a character in a string
+* @s: string to be checked
+* @c: character to be located
+*
+* Return: returns pointer to first occurence of character
+* or NULL if character not found
+*/
+char *_strchr(char *s, char c)
+{
+	while (*s)
 	{
-		_putchar(str[i]);
-		i++;
+		if (*s == c)
+			return (s);
+		s++;
 	}
+	if (!c)
+		return (s);
+	return (NULL);
 }
