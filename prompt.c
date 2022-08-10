@@ -1,15 +1,29 @@
 #include "shell.h"
 
 /**
-* prompt_user - prints $ to let user know the program is
-* ready to take their input
-* prints the prompt if the shell is in interactive mode
-* Return: no return
-*/
-void prompt_user(void)
+ * prompt - Display Shell Prompt
+ */
+void prompt(void)
 {
-	if ((isatty(STDIN_FILENO) == 1) && (isatty(STDOUT_FILENO) == 1))
-		flags.interactive = 1;
-	if (flags.interactive)
-		write(STDERR_FILENO, "$ ", 2);
+	PRINTER("$ ");
+}
+/**
+ * print_error - Display Error Based on Command and How Many Time Shell Looped
+ * @input:User Input
+ * @counter:Simple Shell Count Loop
+ * @argv:Program Name
+ * Return: Void
+ */
+void print_error(char *input, int counter, char **argv)
+{
+	char *er;
+
+	PRINTER(argv[0]);
+	PRINTER(": ");
+	er = _itoa(counter);
+	PRINTER(er);
+	free(er);
+	PRINTER(": ");
+	PRINTER(input);
+	PRINTER(": not found\n");
 }

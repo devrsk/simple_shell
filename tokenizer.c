@@ -1,48 +1,64 @@
 #include "shell.h"
+/**
+ * check_delim - Checks If A Character Match Any Char *
+ * @c: Character To Check
+ * @str: String To Check
+ * Return: 1 Succes, 0 Failed
+ */
+unsigned int check_delim(char c, const char *str)
+{
+	unsigned int i;
+
+	for (i = 0; str[i] != '\0'; i++)
+	{
+		if (c == str[i])
+			return (1);
+	}
+	return (0);
+}
 
 /**
-* tokenizer - creates tokens from given input
-* @line: to be tokenized
-*
-* Return: array of strings
-*/
-char **tokenizer(char *line)
+ * _strtok - Token A String Into Token (strtrok)
+ * @str: String
+ * @delim: Delimiter
+ * Return: Pointer To The Next Token Or NULL
+ */
+char *_strtok(char *str, const char *delim)
 {
-	char *buf = NULL, *bufp = NULL, *token = NULL, *delim = " :\t\r\n";
-	char **tokens = NULL;
-	int tokensize = 1;
-	size_t index = 0, flag = 0;
+	static char *ts;
+	static char *nt;
+	unsigned int i;
 
-	buf = _strdup(line);
-	if (!buf)
+	if (str != NULL)
+		nt = str;
+	ts = nt;
+	if (ts == NULL)
 		return (NULL);
-	bufp = buf;
-
-	while (*bufp)
+	for (i = 0; ts[i] != '\0'; i++)
 	{
-		if (_strchr(delim, *bufp) != NULL && flag == 0)
-		{
-			tokensize++;
-			flag = 1;
-		}
-		else if (_strchr(delim, *bufp) == NULL && flag == 1)
-			flag = 0;
-		bufp++;
+		if (check_delim(ts[i], delim) == 0)
+			break;
 	}
-	tokens = malloc(sizeof(char *) * (tokensize + 1));
-	token = strtok(buf, delim);
-	while (token)
+	if (nt[i] == '\0' || nt[i] == '#')
 	{
-		tokens[index] = _strdup(token);
-		if (tokens[index] == NULL)
-		{
-			free(tokens);
-			return (NULL);
-		}
-		token = strtok(NULL, delim);
-		index++;
+		nt = NULL;
+		return (NULL);
 	}
-	tokens[index] = '\0';
-	free(buf);
-	return (tokens);
+	ts = nt + i;
+	nt = ts;
+	for (i = 0; nt[i] != '\0'; i++)
+	{
+		if (check_delim(nt[i], delim) == 1)
+			break;
+	}
+	if (nt[i] == '\0')
+		nt = NULL;
+	else
+	{
+		nt[i] = '\0';
+		nt = nt + i + 1;
+		if (*nt == '\0')
+			nt = NULL;
+	}
+	return (ts);
 }

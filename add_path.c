@@ -1,44 +1,65 @@
 #include "shell.h"
 
 /**
-* append_path - adds path to command
-* @path: path of command
-* @command: user entered command
-*
-* Return: buffer containing command with path on success
-* NULL on failure
+* _getline - Read The Input By User From Stdin
+* Return: Input
 */
-char *append_path(char *path, char *command)
+char *_getline()
 {
-	char *buf;
-	size_t i = 0, j = 0;
+int i, buffsize = BUFSIZE, rd;
+char c = 0;
+char *buff = malloc(buffsize);
 
-	if (command == 0)
-		command = "";
-
-	if (path == 0)
-		path = "";
-
-	buf = malloc(sizeof(char) * (_strlen(path) + _strlen(command) + 2));
-	if (!buf)
+	if (buff == NULL)
+	{
+		free(buff);
 		return (NULL);
-
-	while (path[i])
-	{
-		buf[i] = path[i];
-		i++;
 	}
 
-	if (path[i - 1] != '/')
+	for (i = 0; c != EOF && c != '\n'; i++)
 	{
-		buf[i] = '/';
-		i++;
+		fflush(stdin);
+		rd = read(STDIN_FILENO, &c, 1);
+		if (rd == 0)
+		{
+			free(buff);
+			exit(EXIT_SUCCESS);
+		}
+		buff[i] = c;
+		if (buff[0] == '\n')
+		{
+			free(buff);
+			return ("\0");
+		}
+		if (i >= buffsize)
+		{
+			buff = _realloc(buff, buffsize, buffsize + 1);
+			if (buff == NULL)
+			{
+				return (NULL);
+			}
+		}
 	}
-	while (command[j])
-	{
-		buf[i + j] = command[j];
-		j++;
+	buff[i] = '\0';
+	hashtag_handle(buff);
+	return (buff);
+}
+
+/**
+ * hashtag_handle - remove everything after #
+ * @buff: input;
+ * Return:void
+ */
+void hashtag_handle(char *buff)
+{
+	int i;
+
+		for (i = 0; buff[i] != '\0'; i++)
+		{
+			if (buff[i] == '#')
+			{
+			buff[i] = '\0';
+			break;
+			}
 	}
-	buf[i + j] = '\0';
-	return (buf);
 }

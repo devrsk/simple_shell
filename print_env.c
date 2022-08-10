@@ -1,19 +1,41 @@
 #include "shell.h"
-
 /**
-* print_env - prints the environment string to stdout
-*
-* Return: 0
-*/
-void print_env(void)
+ * history - Fill File By User Input
+ * @input: User Input
+ * Return: -1 Fail 0 Succes
+ */
+int history(char *input)
 {
-	int x = 0;
-	char **env = environ;
+	char *filename = ".simple_shell_history";
+	ssize_t fd, w;
+	int len = 0;
 
-	while (env[x] != NULL)
+	if (!filename)
+		return (-1);
+	fd = open(filename, O_CREAT | O_RDWR | O_APPEND, 00600);
+	if (fd < 0)
+		return (-1);
+	if (input)
 	{
-		write(STDOUT_FILENO, (const void *)env[x], _strlen(env[x]));
-		write(STDOUT_FILENO, "\n", 1);
-		x++;
+		while (input[len])
+			len++;
+		w = write(fd, input, len);
+		if (w < 0)
+			return (-1);
+	}
+	return (1);
+}
+/**
+ * free_env - Free Enviroment Variable Array
+ * @env:  Environment variables.
+ * Return: Void
+ */
+void free_env(char **env)
+{
+	int i;
+
+	for (i = 0; env[i]; i++)
+	{
+		free(env[i]);
 	}
 }
