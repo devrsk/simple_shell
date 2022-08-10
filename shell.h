@@ -1,6 +1,7 @@
 #ifndef SHELL_H
 #define SHELL_H
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -12,6 +13,12 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <time.h>
+#include <stdbool.h>
+
+/* environment variables */
+extern char **environ;
+extern __sighandler_t signal(int __sig, __sighandler_t __handler);
 
 /**
  * struct var_input - struct
@@ -55,6 +62,19 @@ typedef struct com_help
 	char (*p)(input_v *);
 } help_v;
 
+/* handle built ins */
+int checker(char **cmd, char *buf);
+void prompt_user(void);
+void handle_signal(int m);
+char **tokenizer(char *line);
+char *test_path(char **path, char *command);
+char *append_path(char *path, char *command);
+int handle_builtin(char **command, char *line);
+void exit_cmd(char **command, char *line);
+
+/* prin environment */
+void print_env(void);
+
 /*utility functions*/
 int check_for_comand(input_v *vars, char **env);
 char **brokentoken(char *buffer, char *delimiter);
@@ -70,6 +90,8 @@ int _strcmp(char *s1, char *s2);
 char *_strcat(char *dest, char *src);
 char *_strdup(char *str);
 char *_strtok(char *line, char *delim);
+int _strncmp(char *s1, char *s2, int n);
+char *_strchr(char *s, char c);
 int _strlen(char *s);
 char *_strcpy(char *dest, char *src);
 int _atoi(char *s);
@@ -87,5 +109,34 @@ char print_exit(input_v *vars);
 char print_pwd(input_v *vars);
 char print_cd(input_v *vars);
 char print_help(input_v *vars);
+
+void execution(char *cp, char **cmd);
+char *find_path(void);
+
+/* helper function for efficient free */
+void free_buffers(char **buf);
+
+/**
+ * struct builtin - contain bultin to handle and function to excute
+ */
+struct builtin
+{
+	char *env;
+	char *exit;
+} builtin;
+
+/**
+ * struct bulltin - contain bultin to handle and function to excute
+ */
+struct info
+{
+	int final_exit;
+	int ln_count;
+} info;
+
+struct flags
+{
+	bool interactive;
+} flags;
 
 #endif
