@@ -1,14 +1,14 @@
 #include "shell.h"
-
 /**
- * _exit_func - Function to exit successfully
- *
- * @environ: Environment variables.
- */
-
-void _exit_func(char **environ)
+* exit_cmd - handles the exit command
+* @command: tokenized command
+* @line: input read from stdin
+*
+* Return: no return
+*/
+void exit_cmd(char **command, char *line)
 {
-	(void)environ;
-	/* free_listint(*history); */
-	exit(98);
+	free(line);
+	free_buffers(command);
+	exit(0);
 }
