@@ -12,22 +12,6 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <stdarg.h>
-#include <time.h>
-#include <stdbool.h>
-
-/**
- * struct builtin - is a structure for a builtin object
- * @env: is the environment element
- * @exit: is the exit element
- */
-
-struct builtin
-{
-	char *env;
-	char *exit;
-} builtin;
-
 
 /**
  * struct var_input - struct
@@ -71,7 +55,6 @@ typedef struct com_help
 	char (*p)(input_v *);
 } help_v;
 
-extern char **environ;
 /*utility functions*/
 int check_for_comand(input_v *vars, char **env);
 char **brokentoken(char *buffer, char *delimiter);
@@ -79,8 +62,7 @@ int comd_handling(input_v *vars, char **env);
 char *get_enviroment(char **env, char *comd);
 char *get_dir_concat(char **new_env, char *comd);
 int take_env(input_v *vars, char **env);
-void exit_cmd(char **command, char *line);
-void free_buffers(char **buf);
+
 
 /*methods function C*/
 void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
@@ -105,7 +87,5 @@ char print_exit(input_v *vars);
 char print_pwd(input_v *vars);
 char print_cd(input_v *vars);
 char print_help(input_v *vars);
-void execution(char *cp, char **cmd);
-int checker(char **cmd, char *buf);
 
 #endif
