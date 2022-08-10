@@ -1,113 +1,125 @@
 #include "shell.h"
 
 /**
- * *_strdup - Function that copy an array
- * @str: The string that receives
+ * _strcmp - Compares two strings
+ * @s1:First string
+ * @s2: Second string
  *
- * Return: On success 1.
- * On error, -1 is returned, and errno is set appropriately.
+ * Return: 0
  */
-char *_strdup(char *str)
-{
-	int i = 0, size = 0;
-	char *ar;
 
-	if (!str)
+int _strcmp(char *s1, char *s2)
+{
+	int tot;
+
+	if (s1 == NULL || s2 == NULL)
+		return (0);
+
+	while (*s1 && *s2)
+	{
+		tot = *s1 - *s2;
+
+		if (tot != 0)
+			break;
+		s1++;
+		s2++;
+	}
+	return (tot);
+
+}
+
+
+/**
+ * duplicate_str - returns a pointer to a newly allocated
+ * space in memory, which contains a copy of the
+ * string given as a parameter
+ * @str: string to be duplicated
+ *
+ * Return: pointer to the duplicated string
+ * or NULL if it fails
+ */
+
+char *duplicate_str(char *str)
+{
+	char *p;
+	int i, len;
+
+	if (str == NULL)
+	{
 		return (NULL);
-	while (str[size])
-	size++;
-	ar = malloc(size * sizeof(char) + 1);
-	if (ar == NULL)
+	}
+
+	len = _strlen(str);
+
+	p = malloc(sizeof(char) * (len + 1));
+	if (p == NULL)
+	{
 		return (NULL);
-	for (i = 0; i < size; i++)
-	ar[i] = str[i];
-	ar[i] = '\0';
-	return (ar);
+	}
+	for (i = 0; *str != '\0'; str++, i++)
+	{
+		p[i] = str[0];
+	}
+	p[i++] = '\0';
+
+	return (p);
 }
 
 /**
- * _strlen - return the length of a string
- * @str: The string that receives.
- * Return: The count of characters in string.
+ * _strncmp - compares two strings up to n bytes
+ * @first: first string to compare
+ * @second: second string to compare
+ * @n: the number of bytes in n to check
+ *
+ * Return: value < 0 if (first < second)
+ * value > 0 if (first > second)
+ * value = 0 if (first == second)
  */
-size_t _strlen(char *str)
+int _strncmp(const char *first, const char *second, int n)
+{
+	int idx;
+
+	for (idx = 0; first[idx] && second[idx] && idx < n; idx++)
+	{
+		if (first[idx] != second[idx])
+			return (first[idx] - second[idx]);
+	}
+	return (0);
+}
+
+
+/**
+ * _strlen - gets the length of a string
+ * @str: string to evaluate
+ *
+ * Return: length of string
+ */
+
+int _strlen(const char *str)
 {
 	size_t i = 0;
 
-	while (str[i] != '\0')
+	while (str[i])
 		i++;
 	return (i);
 }
 
 
 /**
- * *string_nconcat - Function that concatenates two strings
- * @s1: The first string that receives
- * @s2: The second string that receives
- * @n: The number of bytes that you need copy
+ * check_str - searches a string for a specific character
+ * @str: string to examine
+ * @chr: character to look for
  *
- * Return: On success 1.
- * On error, -1 is returned, and errno is set appropriately.
+ * Return: pointer to index of first occurence, NULL if not found
  */
 
-char *string_nconcat(char *s1, char *s2, unsigned int n)
+char *check_str(char *str, int chr)
 {
-	int i = 0, j = 0, len_s2 = 0;
-	char *ar;
-
-	if (s2 == NULL)
-		s2 = "";
-	if (s1 == NULL)
-		s1 = "";
-	len_s2 = _strlen(s2);
-	if (n >= (unsigned int)len_s2)
+	while (*str)
 	{
-		ar = malloc(_strlen(s1) + len_s2 + 1);
+		if (*str == chr)
+			return (str);
+		str++;
 	}
-	else
-	{
-		ar = malloc(_strlen(s1) + n + 1);
-	}
-	if (ar == NULL)
-	{
-		return (NULL);
-	}
-	for (i = 0; s1[i]; i++)
-		ar[i] = s1[i];
-	if (n >= (unsigned int)len_s2)
-	{
-		for (j = 0; s2[j]; j++, i++)
-		{
-			ar[i] = s2[j];
-		}
-	}
-	else
-	{
-		for (j = 0; (unsigned int)j < n; j++, i++)
-			ar[i] = s2[j];
-	}
-	ar[i] = '\0';
-	return (ar);
-}
-
-/**
- * *_strcmp - Compare two strings
- * @s1: The string that receives
- * @s2: The second string that receives
- *
- * Return: On success 1.
- * On error, -1 is returned, and errno is set appropriately.
- */
-int _strcmp(char *s1, char *s2)
-{
-	int i = 0, comparition = 0;
-
-	while (*(s1 + i) && *(s2 + i))
-	{
-		if (s1[i] != s2[i])
-			return (s1[i] - s2[i]);
-		comparition += s1[i] - s2[i];
-		i++;
-	}
-	return (comparition);
+	return (NULL);
 }
