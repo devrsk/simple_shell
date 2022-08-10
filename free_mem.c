@@ -1,95 +1,90 @@
 #include "shell.h"
-
 /**
-* _strncpy - Function that copies a string into other
-*@dest: destination of the string
-*@src: string to copy
-*@n: length of the string
-*Return: dest
-*/
-
-char *_strncpy(char *dest, char *src, int n)
+ * _memcpy - copies information between void pointers.
+ * @newptr: destination pointer.
+ * @ptr: source pointer.
+ * @size: size of the new pointer.
+ *
+ * Return: no return.
+ */
+void _memcpy(void *newptr, const void *ptr, unsigned int size)
 {
-	int i;
+	char *char_ptr = (char *)ptr;
+	char *char_newptr = (char *)newptr;
+	unsigned int i;
 
-	for (i = 0; i < n && src[i] != '\0'; i++)
-		dest[i] = src[i];
-
-	for ( ; i < n; i++)
-		dest[i] = '\0';
-
-	return (dest);
+	for (i = 0; i < size; i++)
+		char_newptr[i] = char_ptr[i];
 }
 
 /**
-* _strncpyconst - Function that copies a constant string into other
-*@dest: destination of the string
-*@src: string to copy
-*@n: length of the string
-*Return: dest
-*/
-
-char *_strncpyconst(char *dest, const char *src, int n)
+ * _realloc - reallocates a memory block.
+ * @ptr: pointer to the memory previously allocated.
+ * @old_size: size, in bytes, of the allocated space of ptr.
+ * @new_size: new size, in bytes, of the new memory block.
+ *
+ * Return: ptr.
+ * if new_size == old_size, returns ptr without changes.
+ * if malloc fails, returns NULL.
+ */
+void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 {
-	int i;
+	void *newptr;
 
-	for (i = 0; i < n && src[i] != '\0'; i++)
-		dest[i] = src[i];
-	for ( ; i < n; i++)
-		dest[i] = '\0';
+	if (ptr == NULL)
+		return (malloc(new_size));
 
-	return (dest);
-}
-
-/**
-* _strlen_const - Function to find the length of a constant string
-*@str: string to calculate the length
-*Return: the length of the string
-*/
-
-unsigned int _strlen_const(const char *str)
-{
-	unsigned int i = 0;
-
-	while (str[i] != '\0')
-		i++;
-
-	return (i);
-}
-
-/**
-* _strlen - Function to find the length of a string
-*@str: string to calculate the length
-*Return: the length of the string
-*/
-
-unsigned int _strlen(char *str)
-{
-	unsigned int i = 0;
-
-	while (str[i] != '\0')
-		i++;
-
-	return (i);
-}
-
-/**
-* _strcmp - Function to compare 2 strings and find if are equal
-*@s1: first string to compare
-*@s2: second string to compare
-*Return: 1 for equal, 0 if not
-*/
-
-int _strcmp(char *s1, char *s2)
-{
-	unsigned int i = 0;
-
-	while (s1[i] != '\0')
+	if (new_size == 0)
 	{
-		if (s1[i] != s2[i])
-			return (0);
-		i++;
+		free(ptr);
+		return (NULL);
 	}
 
-	return (1);
+	if (new_size == old_size)
+		return (ptr);
+
+	newptr = malloc(new_size);
+	if (newptr == NULL)
+		return (NULL);
+
+	if (new_size < old_size)
+		_memcpy(newptr, ptr, new_size);
+	else
+		_memcpy(newptr, ptr, old_size);
+
+	free(ptr);
+	return (newptr);
+}
+
+/**
+ * _reallocdp - reallocates a memory block of a double pointer.
+ * @ptr: double pointer to the memory previously allocated.
+ * @old_size: size, in bytes, of the allocated space of ptr.
+ * @new_size: new size, in bytes, of the new memory block.
+ *
+ * Return: ptr.
+ * if new_size == old_size, returns ptr without changes.
+ * if malloc fails, returns NULL.
+ */
+char **_reallocdp(char **ptr, unsigned int old_size, unsigned int new_size)
+{
+	char **newptr;
+	unsigned int i;
+
+	if (ptr == NULL)
+		return (malloc(sizeof(char *) * new_size));
+
+	if (new_size == old_size)
+		return (ptr);
+
+	newptr = malloc(sizeof(char *) * new_size);
+	if (newptr == NULL)
+		return (NULL);
+
+	for (i = 0; i < old_size; i++)
+		newptr[i] = ptr[i];
+
+	free(ptr);
+
+	return (newptr);
 }

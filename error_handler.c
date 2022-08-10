@@ -1,76 +1,41 @@
 #include "shell.h"
+#include "main.h"
 
 /**
- * fork_fail - function that handles a fork fail
- * Return: Nothing
-*/
-
-void fork_fail(void)
+ * get_error - calls the error according the builtin, syntax or permission
+ * @datash: data structure that contains arguments
+ * @eval: error value
+ * Return: error
+ */
+int get_error(data_shell *datash, int eval)
 {
-	perror("Error: ");
-	exit(EXIT_FAILURE);
-}
+	char *error;
 
-/**
-* build_message - Function to write an error message
-*@av: argument vector
-*@fir_com: first command to print if not found
-*@count: number of times executed
-*Return: Nothing(void)
-*/
-
-void build_message(char **av, char *fir_com, int count)
-{
-	int num_length = 1, cp, mult = 1;
-
-	write(STDERR_FILENO, av[0], _strlen(av[0]));
-	write(STDERR_FILENO, ": ", 2);
-	cp = count;
-
-	while (cp >= 10)
+	switch (eval)
 	{
-		cp /= 10;
-		mult *= 10;
-		num_length++;
+	case -1:
+		error = error_env(datash);
+		break;
+	case 126:
+		error = error_path_126(datash);
+		break;
+	case 127:
+		error = error_not_found(datash);
+		break;
+	case 2:
+		if (_strcmp("exit", datash->args[0]) == 0)
+			error = error_exit_shell(datash);
+		else if (_strcmp("cd", datash->args[0]) == 0)
+			error = error_get_cd(datash);
+		break;
 	}
 
-	while (num_length > 1)
+	if (error)
 	{
-		if ((count / mult) < 10)
-			_puterror((count / mult + '0'));
-		else
-			_puterror((count / mult) % 10 + '0');
-		--num_length;
-		mult /= 10;
+		write(STDERR_FILENO, error, _strlen(error));
+		free(error);
 	}
 
-	_puterror(count % 10 + '0');
-	write(STDERR_FILENO, ": ", 2);
-	write(STDERR_FILENO, fir_com, _strlen(fir_com));
-	write(STDERR_FILENO, ": not found\n", 12);
-}
-
-/**
-* _puterror - Prints a char
-*@c: character to write
-*Return: int to print
-*/
-
-int _puterror(char c)
-{
-	return (write(STDERR_FILENO, &c, 1));
-}
-
-/**
-* end_file - function to control the interrupt signal
-*@buffer: buffer array created by new line
-*Return: Nothing(void)
-*/
-
-void end_file(char *buffer)
-{
-	if (isatty(STDIN_FILENO))
-		write(STDOUT_FILENO, "\n", 1);
-	free(buffer);
-	exit(0);
+	datash->status = eval;
+	return (eval);
 }

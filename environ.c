@@ -1,153 +1,183 @@
 #include "shell.h"
 
 /**
-* find_num_dir - Function to find the total number of directories
-*@path: path string
-*Return: number of directories in the path
-*/
-unsigned int find_num_dir(char *path)
+ * check_env - checks if the typed variable is an env variable
+ *
+ * @h: head of linked list
+ * @in: input string
+ * @data: data structure
+ * Return: no return
+ */
+void check_env(r_var **h, char *in, data_shell *data)
 {
-	unsigned int i = 0, flag = 0, num_dir = 0;
+	int row, chr, j, lval;
+	char **_envr;
 
-	while (path[i])
+	_envr = data->_environ;
+	for (row = 0; _envr[row]; row++)
 	{
-		if (path[i] != ':')
-			flag = 1;
-
-		if ((flag && path[i + 1] == ':') || (flag && path[i + 1] == '\0'))
+		for (j = 1, chr = 0; _envr[row][chr]; chr++)
 		{
-			num_dir++;
-			flag = 0;
-		}
-		i++;
-		}
+			if (_envr[row][chr] == '=')
+			{
+				lval = _strlen(_envr[row] + chr + 1);
+				add_rvar_node(h, j, _envr[row] + chr + 1, lval);
+				return;
+			}
 
-		return (num_dir);
+			if (in[j] == _envr[row][chr])
+				j++;
+			else
+				break;
+		}
+	}
+
+	for (j = 0; in[j]; j++)
+	{
+		if (in[j] == ' ' || in[j] == '\t' || in[j] == ';' || in[j] == '\n')
+			break;
+	}
+
+	add_rvar_node(h, j, NULL, 0);
 }
 
 /**
-* store_e_variables - Function that create a double pointer array, where stores
-*each path directory as a pointer
-*@fir_com: first command inserted in the prompt
-*@environ: enviroment variables
-*Return: enviroment
-*/
-
-char **store_e_variables(char *fir_com, char **environ)
+ * check_vars - check if the typed variable is $$ or $?
+ *
+ * @h: head of the linked list
+ * @in: input string
+ * @st: last status of the Shell
+ * @data: data structure
+ * Return: no return
+ */
+int check_vars(r_var **h, char *in, char *st, data_shell *data)
 {
-	char **directories, *path_env, *directory;
-	unsigned int length, i = 0;
-	int dir_length, command_length;
+	int i, lst, lpd;
 
-	path_env = _getenv("PATH", environ);
-	length = find_num_dir(path_env);
-	directories = malloc(sizeof(char *) * (length + 1));
-	if (directories == NULL)
-		return (NULL);
+	lst = _strlen(st);
+	lpd = _strlen(data->pid);
 
-	directory = strtok(path_env, ":");
-
-	while (directory != NULL)
+	for (i = 0; in[i]; i++)
 	{
-		dir_length = _strlen(directory);
-		command_length = _strlen(fir_com);
-		directories[i] = malloc(sizeof(char *) *
-		(dir_length + command_length + 2));
-		if (directories[i] == NULL)
+		if (in[i] == '$')
 		{
-			free_all_dp(directories);
-			return (NULL);
+			if (in[i + 1] == '?')
+				add_rvar_node(h, 2, st, lst), i++;
+			else if (in[i + 1] == '$')
+				add_rvar_node(h, 2, data->pid, lpd), i++;
+			else if (in[i + 1] == '\n')
+				add_rvar_node(h, 0, NULL, 0);
+			else if (in[i + 1] == '\0')
+				add_rvar_node(h, 0, NULL, 0);
+			else if (in[i + 1] == ' ')
+				add_rvar_node(h, 0, NULL, 0);
+			else if (in[i + 1] == '\t')
+				add_rvar_node(h, 0, NULL, 0);
+			else if (in[i + 1] == ';')
+				add_rvar_node(h, 0, NULL, 0);
+			else
+				check_env(h, in + i, data);
 		}
-			_strncpcommand(directories[i], directory, fir_com,
-			dir_length, command_length);
-			i++;
-		directory = strtok(NULL, ":");
 	}
 
-		directories[i] = NULL;
-
-	return (directories);
+	return (i);
 }
 
 /**
-* _getenv - Function to get the enviroment variable
-*@name: name of the enviroment variable
-*@environ: enviroment variables
-*Return: the value associated with the variable
-*/
-
-char *_getenv(const char *name, char **environ)
+ * replaced_input - replaces string into variables
+ *
+ * @head: head of the linked list
+ * @input: input string
+ * @new_input: new input string (replaced)
+ * @nlen: new length
+ * Return: replaced string
+ */
+char *replaced_input(r_var **head, char *input, char *new_input, int nlen)
 {
-	char *env_value, *cp_name;
-	unsigned int i = 0, length;
+	r_var *indx;
+	int i, j, k;
 
-	/*find the length of the argument and malloc space for it*/
-	length =  _strlen_const(name);
-
-	cp_name = malloc(sizeof(char) * length + 1);
-	if (cp_name == NULL)
-		return (NULL);
-
-	/*copy the contents of the name argument to cp_name*/
-	_strncpyconst(cp_name, name, length);
-
-	/*finding the enviroment variable*/
-	env_value = strtok(environ[i], "=");
-	while (environ[i])
+	indx = *head;
+	for (j = i = 0; i < nlen; i++)
 	{
-		if (_strcmp(env_value, cp_name))
-			{																																										env_value = strtok(NULL, "\n");
-			free(cp_name);
-			return (env_value);
+		if (input[j] == '$')
+		{
+			if (!(indx->len_var) && !(indx->len_val))
+			{
+				new_input[i] = input[j];
+				j++;
+			}
+			else if (indx->len_var && !(indx->len_val))
+			{
+				for (k = 0; k < indx->len_var; k++)
+					j++;
+				i--;
+			}
+			else
+			{
+				for (k = 0; k < indx->len_val; k++)
+				{
+					new_input[i] = indx->val[k];
+					i++;
+				}
+				j += (indx->len_var);
+				i--;
+			}
+			indx = indx->next;
 		}
-		i++;
-		env_value = strtok(environ[i], "=");
+		else
+		{
+			new_input[i] = input[j];
+			j++;
+		}
 	}
-	free(cp_name);
-	return (NULL);
+
+	return (new_input);
 }
 
 /**
-* _strncpcommand - Function that copies the path and append a / and command
-*@dest: destination to save
-*@src: source
-*@command: command to append
-*@n: length of destination
-*@c: length of command
-*Return: addres of dest
-*/
-
-char *_strncpcommand(char *dest, char *src, char *command, int n, int c)
+ * rep_var - calls functions to replace string into vars
+ *
+ * @input: input string
+ * @datash: data structure
+ * Return: replaced string
+ */
+char *rep_var(char *input, data_shell *datash)
 {
-	int i, j;
+	r_var *head, *indx;
+	char *status, *new_input;
+	int olen, nlen;
 
-	for (i = 0; i < n && src[i] != '\0'; i++)
-		dest[i] = src[i];
-	/*append "/" and "command" to the src*/
-	dest[i] = '/';
-	i++;
+	status = aux_itoa(datash->status);
+	head = NULL;
 
-	for (j = 0; j < c && command[j] != '\0'; j++, i++)
-		dest[i] = command[j];
-	dest[i] = '\0';
-	return (dest);
-}
+	olen = check_vars(&head, input, status, datash);
 
-/**
-* print_env - Function to print all enviroment variables
-*@environ: enviroment variables for the user
-*Return: Nothing(void)
-*/
-
-void print_env(char **environ)
-{
-	unsigned int i = 0, length;
-
-	while (environ[i])
+	if (head == NULL)
 	{
-		length = _strlen(environ[i]);
-		write(STDOUT_FILENO, environ[i], length);
-		write(STDOUT_FILENO, "\n", 1);
-		i++;
+		free(status);
+		return (input);
 	}
+
+	indx = head;
+	nlen = 0;
+
+	while (indx != NULL)
+	{
+		nlen += (indx->len_val - indx->len_var);
+		indx = indx->next;
+	}
+
+	nlen += olen;
+
+	new_input = malloc(sizeof(char) * (nlen + 1));
+	new_input[nlen] = '\0';
+
+	new_input = replaced_input(&head, input, new_input, nlen);
+
+	free(input);
+	free(status);
+	free_rvar_list(&head);
+
+	return (new_input);
 }

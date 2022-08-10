@@ -1,95 +1,88 @@
 #include "shell.h"
-
 /**
-* _strncpy - Function that copies a string into other
-*@dest: destination of the string
-*@src: string to copy
-*@n: length of the string
-*Return: dest
-*/
-
-char *_strncpy(char *dest, char *src, int n)
-{
-	int i;
-
-	for (i = 0; i < n && src[i] != '\0'; i++)
-		dest[i] = src[i];
-
-	for ( ; i < n; i++)
-		dest[i] = '\0';
-
-	return (dest);
-}
-
-/**
-* _strncpyconst - Function that copies a constant string into other
-*@dest: destination of the string
-*@src: string to copy
-*@n: length of the string
-*Return: dest
-*/
-
-char *_strncpyconst(char *dest, const char *src, int n)
-{
-	int i;
-
-	for (i = 0; i < n && src[i] != '\0'; i++)
-		dest[i] = src[i];
-	for ( ; i < n; i++)
-		dest[i] = '\0';
-
-	return (dest);
-}
-
-/**
-* _strlen_const - Function to find the length of a constant string
-*@str: string to calculate the length
-*Return: the length of the string
-*/
-
-unsigned int _strlen_const(const char *str)
-{
-	unsigned int i = 0;
-
-	while (str[i] != '\0')
-		i++;
-
-	return (i);
-}
-
-/**
-* _strlen - Function to find the length of a string
-*@str: string to calculate the length
-*Return: the length of the string
-*/
-
-unsigned int _strlen(char *str)
-{
-	unsigned int i = 0;
-
-	while (str[i] != '\0')
-		i++;
-
-	return (i);
-}
-
-/**
-* _strcmp - Function to compare 2 strings and find if are equal
-*@s1: first string to compare
-*@s2: second string to compare
-*Return: 1 for equal, 0 if not
-*/
-
+ * _strcmp - compares two strings
+ * @s1: char pointer
+ * @s2: char pointer
+ *
+ * _strcmp: compares two strings at the same spot on each string
+ * Return: positive, negative, or 0 if theyre the same
+ */
 int _strcmp(char *s1, char *s2)
 {
-	unsigned int i = 0;
+	int i;
 
-	while (s1[i] != '\0')
+	i = 0;
+	while (s1[i] != '\0' && s2[i] != '\0')
 	{
 		if (s1[i] != s2[i])
-			return (0);
+		{
+			return (s1[i] - s2[i]);
+		}
 		i++;
 	}
+	return (s1[i] - s2[i]);
+}
+/**
+ * _strlen - counts the length of the string
+ * @str: string
+ * Return: length of the string
+ */
+size_t _strlen(char *str)
+{
+	size_t length = 0;
 
-	return (1);
+	while (*str++)
+		length++;
+
+	return (length);
+}
+/**
+ * _strcpy - string copy
+ * @dest: dest string
+ * @src: source string
+ * Return: string
+ */
+char *_strcpy(char *dest, char *src)
+{
+	char *ptr = dest;
+
+	while (*src)
+		*ptr++ = *src++;
+	*ptr = *src;
+
+	return (dest);
+}
+/**
+ * _strdup - string duplication
+ * @str: string
+ * Return: string
+ */
+char *_strdup(char *str)
+{
+	char *new;
+
+	if (str == NULL)
+		return (NULL);
+	new = malloc(sizeof(char) * (_strlen(str) + 1));
+	if (new == NULL)
+		return (NULL);
+	_strcpy(new, str);
+	return (new);
+}
+/**
+ * _strcat - string concnat
+ * @dest: destination
+ * @src: source
+ * Return: concated string
+ */
+char *_strcat(char *dest, char *src)
+{
+	char *ptrs = dest;
+
+	while (*ptrs)
+		ptrs++;
+	while (*src)
+		*ptrs++ = *src++;
+	*ptrs = 0;
+	return (dest);
 }
