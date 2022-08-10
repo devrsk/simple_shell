@@ -8,6 +8,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <string.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <limits.h>
@@ -103,7 +104,7 @@ r_var *add_rvar_node(r_var **head, int lvar, char *var, int lval);
 void free_rvar_list(r_var **head);
 
 /* aux_str functions */
-char *_strcat(char *dest, const char *src);
+char *_strcat(char *dest, char *src);
 char *_strcpy(char *dest, char *src);
 int _strcmp(char *s1, char *s2);
 char *_strchr(char *s, char c);
@@ -115,10 +116,10 @@ void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
 char **_reallocdp(char **ptr, unsigned int old_size, unsigned int new_size);
 
 /* aux_str2.c */
-char *_strdup(const char *s);
-int _strlen(const char *s);
-int cmp_chars(char str[], const char *delim);
-char *_strtok(char str[], const char *delim);
+char *_strdup(char *s);
+size_t _strlen(char *s);
+int cmp_chars(char str[], char *delim);
+char *_strtok(char str[], char *delim);
 int _isdigit(const char *s);
 
 /* aux_str3.c */
