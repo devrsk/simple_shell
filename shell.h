@@ -13,6 +13,8 @@
 #include <fcntl.h>
 #include <errno.h>
 
+extern char **environ;
+
 /**
  * struct var_input - struct
  * @count: count
@@ -62,11 +64,12 @@ int comd_handling(input_v *vars, char **env);
 char *get_enviroment(char **env, char *comd);
 char *get_dir_concat(char **new_env, char *comd);
 int take_env(input_v *vars, char **env);
-
+void _exit_func(char **);
 
 /*methods function C*/
 void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
 int _strcmp(char *s1, char *s2);
+int _strncmp(char *s1, char *s2, int n);
 char *_strcat(char *dest, char *src);
 char *_strdup(char *str);
 char *_strtok(char *line, char *delim);
@@ -87,5 +90,8 @@ char print_exit(input_v *vars);
 char print_pwd(input_v *vars);
 char print_cd(input_v *vars);
 char print_help(input_v *vars);
+char *find_path(void);
+char *test_path(char **path, char *command);
+char *append_path(char *path, char *command);
 
 #endif
